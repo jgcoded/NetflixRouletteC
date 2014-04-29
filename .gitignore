@@ -1,0 +1,5 @@
+deps/*
+build/*
+doc/*
+
+!*/CMakeLists.txt
