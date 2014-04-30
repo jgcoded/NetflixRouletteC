@@ -7,6 +7,16 @@
 
 #define API_ERRORCODE_STR "errorcode"
 #define API_RELEASEYEAR_STR "release_year"
+#define API_UNIT_STR "unit"
+#define API_SHOWID_STR "show_id"
+#define API_SHOWTITLE_STR "show_title"
+#define API_RATING_STR "rating"
+#define API_CATEGORY_STR "category"
+#define API_SHOWCAST_STR "show_cast"
+#define API_DIRECTOR_STR "director"
+#define API_SUMMARY_STR "summary"
+#define API_POSTER_STR "poster"
+#define API_MEDIATYPE_STR "mediatype"
 
 struct nflx
 {
