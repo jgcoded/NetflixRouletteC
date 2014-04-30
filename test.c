@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "netflixroulettec.h"
 
 int main(int argc, char* argv[])
@@ -24,10 +23,9 @@ int main(int argc, char* argv[])
 	printf("summary: %s\n",      nflx_get_summary(movie));
 	printf("poster: %s\n",       nflx_get_poster(movie));
 	printf("media type: %s\n",   nflx_get_mediatype(movie) == NFLX_MOVIE
-													? "movie" : "show");
+                                                     ? "movie" : "show");
 
 	nflx_destroy(movie);
-
 	nflx_deinit();
 
 	return 0;
