@@ -274,8 +274,12 @@ NFLX_MEDIATYPE nflx_get_mediatype(const struct nflx *media)
 
 void nflx_destroy(struct nflx *media)
 {
-	// curl's cleanup automatically destroys struct nflx's data member
-	// and cJSON's data
+	if (media->cjson != NULL)
+		cJSON_Delete(media->cjson);
+
+	if (media->data != NULL)
+		free(media->data);
+
 	if (media->curl != NULL)
 		curl_easy_cleanup(media->curl);
 
