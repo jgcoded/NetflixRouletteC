@@ -4,7 +4,7 @@ project(NetflixRouletteC)
 set(NFLX_TARGET nflx)
 
 option(NFLX_BUILD_STATIC
-  "Build NetflixRouletteC as a shared library" ON)
+  "Build NetflixRouletteC as a static library" ON)
 
 add_subdirectory(deps)
 
@@ -28,6 +28,12 @@ set(TESTS
   test
 )
 
+set(PLATFORM_LIBS )
+
+if(UNIX AND NOT APPLE)
+  set(PLATFORM_LIBS m)
+endif()
+
 foreach(source ${SOURCES})
   list(APPEND HEADERS ${CMAKE_SOURCE_DIR}/${source})
 endforeach(source)
@@ -37,11 +43,12 @@ if(NFLX_BUILD_STATIC)
 endif()
 
 add_library(${NFLX_TARGET} ${SOURCES} ${HEADERS})
-target_link_libraries(${NFLX_TARGET} libcurl)
+target_link_libraries(${NFLX_TARGET} libcurl ${PLATFORM_LIBS})
 add_dependencies(${NFLX_TARGET} libcurl)
 
 foreach(test ${TESTS})
   add_executable(${test} ${test}.c)
-  target_link_libraries(${test} ${NFLX_TARGET} libcurl)
+  target_link_libraries(${test} ${NFLX_TARGET} libcurl ${PLATFORM_LIBS})
   add_dependencies(${test} ${NFLX_TARGET} libcurl)
 endforeach(test)
+
