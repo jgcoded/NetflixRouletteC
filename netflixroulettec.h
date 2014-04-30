@@ -28,13 +28,9 @@ struct nflx;
 
 API void nflx_init();
 
-API void generate_api_url(struct nflx *n, const char *title, int year);
-
 API struct nflx* nflx_get_data(const char *title, int year);
 
-API int nflx_release_year(struct nflx *n);
-
-API int nflx_destroy(struct nflx *n);
+API void nflx_destroy(struct nflx *n);
 
 API void nflx_deinit();
 

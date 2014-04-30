@@ -3,11 +3,10 @@
 #include <cJSON.h>
 
 #define API_URL "http://netflixroulette.net/api/api.php?title=%s&year=%d"
-#define API_URL_LENGTH 47
+#define API_URL_LENGTH 51
 
 struct nflx
 {
-	char* url;
 	CURL *curl;
 	cJSON *cjson;
 	char *data;
@@ -23,7 +22,7 @@ static size_t on_data_receive(void *content, size_t size, size_t nmemb, void *us
 	if (n->data == NULL)
 		return 0;
 
-	memcpy(&(n->data[0]), content, size*nmemb);
+	memcpy(n->data, content, size*nmemb);
 
 	n->data[size*nmemb] = 0;
 
@@ -34,15 +33,16 @@ char* replace_spaces(const char *title)
 {
 	int i = -1, j = 0;
 	int numSpaces = 0;
-	int newSize = 0;
-	char* dest;
+	size_t newSize = 0;
+	char *dest;
 
 	while (title[++i] != '\0')
 		if (isspace(title[i]))
 			++numSpaces;
 
-	newSize = strlen(title) + numSpaces * 3;
-	dest = (char*)calloc(newSize, sizeof(char));
+	newSize = strlen(title) + numSpaces * 2;
+	dest = (char*)malloc(newSize + 1);
+	
 	dest[newSize] = '\0';
 	i = -1;
 	while (title[++i] != '\0') {
@@ -62,19 +62,22 @@ char* replace_spaces(const char *title)
 	return dest;
 }
 
-void generate_api_url(struct nflx *n, const char *title, int year)
+char* generate_api_url(const char *title, int year)
 {
-	int titleLength, yearLength, newSize;
-	char* newTitle = replace_spaces(title);
+	size_t titleLength, yearLength, newSize;
+	char *newTitle = replace_spaces(title);
+	char *url;
 
 	titleLength = strlen(newTitle);
 	yearLength = (year == 0) ? 1 : 4;
-	newSize = API_URL_LENGTH + titleLength + yearLength + 1;
+	newSize = API_URL_LENGTH + titleLength + yearLength;
 
-	n->url = (char*)malloc(newSize);
-	n->url[newSize] = '\0';
+	url = (char*)malloc(newSize + 1);
+	url[newSize] = '\0';
 
-	sprintf(n->url, API_URL, newTitle, year);
+	sprintf(url, API_URL, newTitle, year);
+
+	return url;
 }
 
 struct nflx* nflx_get_data(const char *title, int year)
@@ -82,7 +85,7 @@ struct nflx* nflx_get_data(const char *title, int year)
 	struct nflx n;
 	CURLcode res;
 
-	generate_api_url(&n, title, year);
+	char *url = generate_api_url(title, year);
 
 	n.curl = curl_easy_init();
 
@@ -91,18 +94,20 @@ struct nflx* nflx_get_data(const char *title, int year)
 
 	curl_easy_setopt(n.curl, CURLOPT_WRITEFUNCTION, on_data_receive);
 	curl_easy_setopt(n.curl, CURLOPT_WRITEDATA, (void *)&n);
-	curl_easy_setopt(n.curl, CURLOPT_URL, n.url);
+	curl_easy_setopt(n.curl, CURLOPT_URL, url);
 
 	res = curl_easy_perform(n.curl);
 
 	if (res != CURLE_OK)
 	{
-		free(n.url);
+		free(url);
 		curl_easy_cleanup(n.curl);
 		return NULL;
 	}
 	
 	n.cjson = cJSON_Parse(n.data);
+
+	free(url);
 
 	return &n;
 }
@@ -112,19 +117,10 @@ void nflx_init()
 	curl_global_init(CURL_GLOBAL_ALL);
 }
 
-int nflx_destroy(struct nflx *n)
+void nflx_destroy(struct nflx *n)
 {
-	//if (n->url != NULL)
-	//	free(n->url);
-
 	if (n->curl != NULL)
 		curl_easy_cleanup(n->curl);
-
-	if (n->cjson != NULL)
-		cJSON_Delete(n->cjson);
-
-	if (n->data != NULL)
-		free(n->data);
 }
 
 void nflx_deinit()
