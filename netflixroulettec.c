@@ -6,9 +6,9 @@
 #define API_URL_LENGTH 51
 
 #define API_ERRORCODE_STR "errorcode"
-#define API_RELEASEYEAR_STR "release_year"
 #define API_UNIT_STR "unit"
 #define API_SHOWID_STR "show_id"
+#define API_RELEASEYEAR_STR "release_year"
 #define API_SHOWTITLE_STR "show_title"
 #define API_RATING_STR "rating"
 #define API_CATEGORY_STR "category"
@@ -141,24 +141,26 @@ struct nflx* nflx_get_data(const char *title, const int year)
 	return &n;
 }
 
-int nflx_release_year(struct nflx *media, int *year)
+void nflx_init()
+{
+	curl_global_init(CURL_GLOBAL_ALL);
+}
+
+
+int nflx_release_year(struct nflx *media, int *dest)
 {
 	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RELEASEYEAR_STR);
 
 	if (item == NULL)
 		return -1;
 
-	*year = item->valueint;
+	*dest = item->valueint;
 
 	return 1;
 }
 
-void nflx_init()
-{
-	curl_global_init(CURL_GLOBAL_ALL);
-}
 
-void nflx_destroy(struct nflx *n)
+void nflx_destroy(struct nflx *media)
 {
 	// curl's cleanup automatically destroys struct nflx's data member
 	if (n->curl != NULL)

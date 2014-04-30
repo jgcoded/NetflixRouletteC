@@ -17,9 +17,6 @@
 
 #define API extern
 
-#define NFLX_OK 1
-#define NFLX_BAD -1
-
 typedef enum
 {
 	NFLX_MOVIE=0,
