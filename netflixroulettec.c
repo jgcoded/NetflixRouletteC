@@ -1,3 +1,8 @@
+#ifdef WIN32
+#pragma warning(disable : 4172)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "netflixroulettec.h"
 #include <curl/curl.h>
 #include <cJSON.h>
@@ -146,30 +151,130 @@ void nflx_init()
 	curl_global_init(CURL_GLOBAL_ALL);
 }
 
-
-int nflx_release_year(struct nflx *media, int *dest)
+int nflx_get_unit(struct nflx *media, int* dest)
 {
-	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RELEASEYEAR_STR);
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_UNIT_STR);
 
 	if (item == NULL)
-		return -1;
+		return 0;
 
 	*dest = item->valueint;
 
 	return 1;
 }
 
+int nflx_get_showid(struct nflx *media, int* dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_SHOWID_STR);
+
+	if (item == NULL)
+		return 0;
+
+	*dest = item->valueint;
+
+	return 1;
+}
+
+int nflx_release_year(struct nflx *media, int *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RELEASEYEAR_STR);
+
+	if (item == NULL)
+		return 0;
+
+	*dest = item->valueint;
+
+	return 1;
+}
+
+int nflx_get_show_title(struct nflx *media, char *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_SHOWTITLE_STR);
+
+	if (item == NULL)
+		return 0;
+
+	dest = item->valuestring;
+
+	return 1;
+}
+
+int nflx_get_rating(struct nflx *media, double *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RATING_STR);
+
+	if (item == NULL)
+		return 0;
+
+	*dest = item->valuedouble;
+
+	return 1;
+}
+
+int nflx_get_category(struct nflx *media, char *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_CATEGORY_STR);
+
+	if (item == NULL)
+		return 0;
+
+	dest = item->valuestring;
+
+	return 1;
+}
+
+int nflx_get_showcast(struct nflx *media, char *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_SHOWCAST_STR);
+
+	if (item == NULL)
+		return 0;
+
+	dest = item->valuestring;
+
+	return 1;
+}
+
+int nflx_get_director(struct nflx *media, char *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_DIRECTOR_STR);
+
+	if (item == NULL)
+		return 0;
+
+	dest = item->valuestring;
+
+	return 1;
+}
+
+int nflx_get_poster(struct nflx *media, char *dest)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_POSTER_STR);
+
+	if (item == NULL)
+		return 0;
+
+	dest = item->valuestring;
+
+	return 1;
+}
+
+int nflx_get_mediatype(struct nflx *media)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_POSTER_STR);
+
+	if (item == NULL)
+		return 0;
+
+	return item->valueint == 0 ? NFLX_MOVIE : NFLX_SHOW;
+}
 
 void nflx_destroy(struct nflx *media)
 {
 	// curl's cleanup automatically destroys struct nflx's data member
-	if (n->curl != NULL)
-		curl_easy_cleanup(n->curl);
+	if (media->curl != NULL)
+		curl_easy_cleanup(media->curl);
 
-	if (n->cjson == NULL)
-		return;
-
-	cJSON_DeleteItemFromObject(n->cjson, API_RELEASEYEAR_STR);
 }
 
 void nflx_deinit()
