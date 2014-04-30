@@ -2,11 +2,8 @@
 #include <stdlib.h>
 #include "netflixroulettec.h"
 
-
-
 int main(int argc, char* argv[])
 {
-
 	struct nflx *movie1;
 	
 	nflx_init();

@@ -5,6 +5,9 @@
 #define API_URL "http://netflixroulette.net/api/api.php?title=%s&year=%d"
 #define API_URL_LENGTH 51
 
+#define API_ERRORCODE_STR "errorcode"
+#define API_RELEASEYEAR_STR "release_year"
+
 struct nflx
 {
 	CURL *curl;
@@ -62,7 +65,7 @@ char* replace_spaces(const char *title)
 	return dest;
 }
 
-char* generate_api_url(const char *title, int year)
+char* generate_api_url(const char *title, const int year)
 {
 	size_t titleLength, yearLength, newSize;
 	char *newTitle = replace_spaces(title);
@@ -80,7 +83,7 @@ char* generate_api_url(const char *title, int year)
 	return url;
 }
 
-struct nflx* nflx_get_data(const char *title, int year)
+struct nflx* nflx_get_data(const char *title, const int year)
 {
 	struct nflx n;
 	CURLcode res;
@@ -107,9 +110,37 @@ struct nflx* nflx_get_data(const char *title, int year)
 	
 	n.cjson = cJSON_Parse(n.data);
 
+	if (n.cjson == NULL)
+	{
+		free(url);
+		curl_easy_cleanup(n.curl);
+		return NULL;
+	}
+
+	cJSON *errorCheck = cJSON_GetObjectItem(n.cjson, API_ERRORCODE_STR);
+
+	if (errorCheck != NULL)
+	{
+		free(url);
+		nflx_destroy(&n);
+		return NULL;
+	}
+
 	free(url);
 
 	return &n;
+}
+
+int nflx_release_year(struct nflx *media, int *year)
+{
+	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RELEASEYEAR_STR);
+
+	if (item == NULL)
+		return -1;
+
+	*year = item->valueint;
+
+	return 1;
 }
 
 void nflx_init()
@@ -119,8 +150,14 @@ void nflx_init()
 
 void nflx_destroy(struct nflx *n)
 {
+	// curl's cleanup automatically destroys struct nflx's data member
 	if (n->curl != NULL)
 		curl_easy_cleanup(n->curl);
+
+	if (n->cjson == NULL)
+		return;
+
+	cJSON_DeleteItemFromObject(n->cjson, API_RELEASEYEAR_STR);
 }
 
 void nflx_deinit()
