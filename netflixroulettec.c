@@ -1,7 +1,3 @@
-#ifdef WIN32
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 /* System includes */
 #include <stdlib.h>
 #include <string.h>
@@ -39,12 +35,10 @@ static size_t on_data_receive(void *content, size_t size, size_t nmemb, void *us
 
 	n->data = malloc(size * nmemb + 1);
 
-	// out of memory 
 	if (n->data == NULL)
 		return 0;
 
 	memcpy(n->data, content, size*nmemb);
-
 	n->data[size*nmemb] = 0;
 
 	return size * nmemb;
