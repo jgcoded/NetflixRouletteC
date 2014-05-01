@@ -1,14 +1,23 @@
 #ifndef NETFLIXROULETTEC_H
 #define NETFLIXROULETTEC_H
 
-#ifdef NFLX_STATIC
+#ifdef WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#ifdef NFLX_EXPORTS
+#define API __declspec(dllexport)
+#else
+#ifndef NFLX_STATIC
+#define API __declspec(dllimport)
+#else
+#define API extern
 #define CURL_STATICLIB
-#endif /* NFLX_STATIC */
+#endif /*NFLX_STATIC */
+#endif /*NFLX_EXPORTS */
 
 #define NFLX_OK 1
 #define NFLX_BAD 0
-
-#define API extern
 
 typedef enum
 {
