@@ -28,6 +28,10 @@ typedef enum
 
 struct nflx;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 API void nflx_init();
 
 API struct nflx* nflx_get_data(const char *title, const int year);
@@ -57,5 +61,9 @@ API NFLX_MEDIATYPE nflx_get_mediatype(const struct nflx *media);
 API void nflx_destroy(struct nflx *media);
 
 API void nflx_deinit();
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* NETFLIXROULETTEC_H */
