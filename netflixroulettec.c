@@ -1,6 +1,7 @@
 /* System includes */
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "netflixroulettec.h"
 #include <curl/curl.h>
@@ -178,12 +179,15 @@ int nflx_get_showid(const struct nflx *media)
 
 int nflx_get_release_year(const struct nflx *media)
 {
+	int year = 0;
 	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RELEASEYEAR_STR);
 
 	if (item == NULL)
 		return NFLX_BAD;
 
-	return atoi(item->valuestring);
+	year = strtol(item->valuestring, NULL, 0);
+
+	return year;
 }
 
 char* nflx_get_show_title(const struct nflx *media)
@@ -198,15 +202,21 @@ char* nflx_get_show_title(const struct nflx *media)
 
 double nflx_get_rating(const struct nflx *media)
 {
+	double rating = 0;
 	cJSON *item = cJSON_GetObjectItem(media->cjson, API_RATING_STR);
 
 	if (item == NULL)
 		return NFLX_BAD;
 
-	return atof(item->valuestring);
+	rating = strtod(item->valuestring, NULL);
+
+	if (errno == ERANGE)
+		return -1;
+
+	return rating;
 }
 
-API char* nflx_get_category(const struct nflx *media)
+char* nflx_get_category(const struct nflx *media)
 {
 	cJSON *item = cJSON_GetObjectItem(media->cjson, API_CATEGORY_STR);
 
