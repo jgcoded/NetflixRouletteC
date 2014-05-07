@@ -114,7 +114,7 @@ struct nflx* nflx_get_data(const char *title, const int year)
 	empty->curl = curl_easy_init();
 
 	if (empty->curl == NULL)
-		return NULL;
+		goto out;
 
 	curl_easy_setopt(empty->curl, CURLOPT_WRITEFUNCTION, on_data_receive);
 	curl_easy_setopt(empty->curl, CURLOPT_WRITEDATA, (void *)empty);
@@ -123,33 +123,29 @@ struct nflx* nflx_get_data(const char *title, const int year)
 	res = curl_easy_perform(empty->curl);
 
 	if (res != CURLE_OK)
-	{
-		free(url);
-		curl_easy_cleanup(empty->curl);
-		return NULL;
-	}
+		goto out;
 	
 	empty->cjson = cJSON_Parse(empty->data);
 
 	if (empty->cjson == NULL)
-	{
-		free(url);
-		curl_easy_cleanup(empty->curl);
-		return NULL;
-	}
+		goto out;
 
 	cJSON *errorCheck = cJSON_GetObjectItem(empty->cjson, API_ERRORCODE_STR);
 
 	if (errorCheck != NULL)
-	{
-		free(url);
-		nflx_destroy(empty);
-		return NULL;
-	}
+		goto out;
 
 	free(url);
 
 	return empty;
+
+out:
+	if (url != NULL)
+		free(url);
+
+	nflx_destroy(empty);
+
+	return NULL;
 }
 
 void nflx_init()
