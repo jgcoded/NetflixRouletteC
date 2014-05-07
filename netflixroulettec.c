@@ -47,7 +47,7 @@ static size_t on_data_receive(void *content, size_t size, size_t nmemb, void *us
 
 char* replace_spaces(const char *title)
 {
-	int i = -1, j = 0;
+	int i = -1, j;
 	int numSpaces = 0;
 	size_t newSize = 0;
 	char *dest;
@@ -59,17 +59,27 @@ char* replace_spaces(const char *title)
 	newSize = strlen(title) + numSpaces * 2;
 	dest = (char*)malloc(newSize + 1);
 	
+	if (dest == NULL)
+		return NULL;
+
 	dest[newSize] = '\0';
 	i = -1;
+	j = 0;
 	while (title[++i] != '\0') {
 
 		if (isspace(title[i])) {
+			if (j >= newSize - 2)
+				break;
+
 			dest[j] = '%';
 			dest[j + 1] = '2';
 			dest[j + 2] = '0';
 			j += 3;
-		}
-		else {
+						
+		} else {
+			if (j >= newSize)
+				break;
+
 			dest[j] = title[i];
 			++j;
 		}
@@ -81,14 +91,21 @@ char* replace_spaces(const char *title)
 char* generate_api_url(const char *title, const int year)
 {
 	size_t titleLength, yearLength, newSize;
-	char *newTitle = replace_spaces(title);
 	char *url;
+	char *newTitle = replace_spaces(title);
+
+	if (newTitle == NULL)
+		return NULL;
 
 	titleLength = strlen(newTitle);
 	yearLength = (year == 0) ? 1 : 4;
 	newSize = API_URL_LENGTH + titleLength + yearLength;
 
 	url = (char*)malloc(newSize + 1);
+
+	if (url == NULL)
+		return NULL;
+
 	url[newSize] = '\0';
 
 	sprintf(url, API_URL, newTitle, year);
@@ -110,6 +127,9 @@ struct nflx* nflx_get_data(const char *title, const int year)
 	empty->data = NULL;
 
 	char *url = generate_api_url(title, year);
+
+	if (url == NULL)
+		goto out;
 
 	empty->curl = curl_easy_init();
 
