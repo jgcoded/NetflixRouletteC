@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	
 	nflx_init();
 	
-	movie = nflx_get_data("The Boondocks", 2005);
+	movie = nflx_get_data("House of Cards", 2013);
 
 	if (movie == NULL)
 		exit(1);
