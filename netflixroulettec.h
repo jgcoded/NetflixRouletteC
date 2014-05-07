@@ -1,3 +1,11 @@
+/*! \file netflixroulettec.h 
+ *
+ * \mainpage
+ * 
+ * [Netflix Roulette web API](http://www.netflixroulette.net/API/)
+ *  @see netflixroulettec.h
+ */
+
 #ifndef NETFLIXROULETTEC_H
 #define NETFLIXROULETTEC_H
 
