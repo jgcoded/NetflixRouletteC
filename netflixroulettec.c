@@ -203,6 +203,9 @@ int nflx_get_release_year(const struct nflx *media)
 
 	year = strtol(item->valuestring, NULL, 0);
 
+	if (errno == ERANGE)
+		return NFLX_BAD;
+
 	return year;
 }
 
@@ -227,7 +230,7 @@ double nflx_get_rating(const struct nflx *media)
 	rating = strtod(item->valuestring, NULL);
 
 	if (errno == ERANGE)
-		return -1;
+		return NFLX_BAD;
 
 	return rating;
 }
